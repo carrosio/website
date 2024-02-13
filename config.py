@@ -2,6 +2,7 @@ CONFIG = {
     'activate_filter_date': False,
     'activate_href_filter': False,
     'resample_var': 'm',
+    'bar_size': 20,
     'general_start_date': '2023-11',
     'general_end_date': '2028',
     'usernames': ['javiermilei']
