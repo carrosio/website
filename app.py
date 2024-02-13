@@ -83,29 +83,27 @@ def plot_comments_likes_ratio(username, color, resample_type, user_timeframes, a
     df_resampled = resample_and_fill_missing(df, resample_type)
     df_resampled = calculate_ratio(df_resampled)
 
+    color = '#9333ea'
+
     # Set the background of the entire plot to be transparent
     plt.figure(figsize=(16, 10), facecolor='none')
     plt.axes().set_facecolor('none')
 
-    # Plot the bars with transparency
-    bars = plt.bar(df_resampled.index[1:], df_resampled['RelativeRatio'][1:], color=color, alpha=0.7, width=25)
+    # Plot the bars with transparency and blue color
+    bars = plt.bar(df_resampled.index[1:], df_resampled['RelativeRatio'][1:], color=color, alpha=0.7, width=25, edgecolor=color)
 
     # Customize plot appearance
     date_range = pd.date_range(start=df_resampled.index[1].replace(tzinfo=None), 
                                end=datetime(2025, 7, 14).replace(tzinfo=None), freq='M')
     customize_plot_appearance(date_range)
 
-    # Plot the line
-    #plt.plot(df_resampled.index[1:], df_resampled['RelativeRatio'][1:], color='grey', linewidth=size_line, alpha=0.7)
-
-    # Customize the appearance of the bars
-    for bar in bars:
-        bar.set_edgecolor(color)
 
     # Delete vertical grid lines
     plt.gca().xaxis.grid(False)
 
+   
     return df_resampled
+
 
 # Set seaborn style
 # Create an empty DataFrame to store the mixed data
