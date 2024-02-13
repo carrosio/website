@@ -66,7 +66,7 @@ def resample_and_fill_missing(df, resample_type):
 def calculate_ratio(df_resampled):
     df_resampled['Ratio'] = ((df_resampled['Comments'] / (df_resampled['Likes'] + df_resampled['Comments']) * 100) * -1)
     december_ratio = df_resampled.loc[df_resampled.index.month == 12, 'Ratio'].values[0]
-    df_resampled['RelativeRatio'] = ((((df_resampled['Ratio'] / december_ratio))-1) * 100 ) * -1
+    df_resampled['RelativeRatio'] = ((((df_resampled['Ratio'] / december_ratio))) * 100 ) * -1
     return df_resampled
 
 def plot_ratio_bars(df_resampled, color, username):
@@ -74,6 +74,8 @@ def plot_ratio_bars(df_resampled, color, username):
 
 def customize_plot_appearance(date_range):
     plt.xticks(date_range, [month.strftime('%B') for month in date_range], rotation=45, ha='right')
+
+
 
 def plot_comments_likes_ratio(username, color, resample_type, user_timeframes, activate_filter_date, general_timeframe, activate_href_filter, vertical_lines=None, size_line=1):
     df = load_and_preprocess_data(username)
@@ -84,10 +86,10 @@ def plot_comments_likes_ratio(username, color, resample_type, user_timeframes, a
     df_resampled = resample_and_fill_missing(df, resample_type)
     df_resampled = calculate_ratio(df_resampled)
 
-    color = '#831843'
+    color = '#db2777'
 
     # Set the background of the entire plot to be transparent
-    plt.figure(figsize=(10, 6), facecolor='none')  # Adjust the figsize to make the chart smaller
+    plt.figure(figsize=(10, 5), facecolor='none')  # Adjust the figsize to make the chart smaller
     plt.axes().set_facecolor('none')
 
     # Plot the bars with transparency and blue color
@@ -101,6 +103,9 @@ def plot_comments_likes_ratio(username, color, resample_type, user_timeframes, a
 
     # Delete vertical grid lines
     plt.gca().xaxis.grid(False)
+    # Delete horizontal grid lines
+    plt.gca().yaxis.grid(False)
+
 
    
     return df_resampled
