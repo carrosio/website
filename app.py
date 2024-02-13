@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, render_template
 import matplotlib.pyplot as plt
 from io import BytesIO
@@ -7,18 +8,25 @@ import pandas as pd
 from datetime import datetime
 from pandas.plotting import register_matplotlib_converters
 import os
+from config import CONFIG, USER_TIMEFRAMES
+import mpld3
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
 app = Flask(__name__, template_folder=template_dir)
 
 # Configuration
-activate_filter_date = False
-activate_href_filter = False
-resample_var = 'm'
-general_start_date = '2023-11'
-general_end_date = '2028'
+activate_filter_date = CONFIG['activate_filter_date']
+activate_href_filter = CONFIG['activate_href_filter']
+resample_var = CONFIG['resample_var']
+general_start_date = CONFIG['general_start_date']
+general_end_date = CONFIG['general_end_date']
+usernames = CONFIG['usernames']
 
-usernames = ['javiermilei']
+# Define general_timeframe
+general_timeframe = (general_start_date, general_end_date)
+
+# Set seaborn style
+sns.set_theme(style="whitegrid", font_scale=1.2)
 
 # Function to plot daily comments/likes ratio
 def load_and_preprocess_data(username):
@@ -66,44 +74,49 @@ def plot_ratio_bars(df_resampled, color, username):
 def customize_plot_appearance(date_range):
     plt.xticks(date_range, [month.strftime('%B %Y') for month in date_range], rotation=90)
 
-def plot_comments_likes_ratio(username, color, resample_type, timeframe=None, activate_filter_date=False,
-                               general_timeframe=None, activate_href_filter=False, vertical_lines=None, size_line=1):
+def plot_comments_likes_ratio(username, color, resample_type, user_timeframes, activate_filter_date, general_timeframe, activate_href_filter, vertical_lines=None, size_line=1):
     df = load_and_preprocess_data(username)
     df = apply_general_datetime_filter(df, general_timeframe)
-    df = apply_user_datetime_filter(df, activate_filter_date, timeframe, username)
+    df = apply_user_datetime_filter(df, activate_filter_date, user_timeframes, username)
     df = apply_href_filter(df, activate_href_filter)
 
     df_resampled = resample_and_fill_missing(df, resample_type)
     df_resampled = calculate_ratio(df_resampled)
 
-    plt.figure(figsize=(16, 10))
-    plot_ratio_bars(df_resampled, color, username)
+    # Set the background of the entire plot to be transparent
+    plt.figure(figsize=(16, 10), facecolor='none')
+    plt.axes().set_facecolor('none')
 
+    # Plot the bars with transparency
+    bars = plt.bar(df_resampled.index[1:], df_resampled['RelativeRatio'][1:], color=color, alpha=0.7, width=25)
+
+    # Customize plot appearance
     date_range = pd.date_range(start=df_resampled.index[1].replace(tzinfo=None), 
-                           end=datetime(2025, 7, 14).replace(tzinfo=None), freq='M')
+                               end=datetime(2025, 7, 14).replace(tzinfo=None), freq='M')
     customize_plot_appearance(date_range)
+
+    # Plot the line
+    #plt.plot(df_resampled.index[1:], df_resampled['RelativeRatio'][1:], color='grey', linewidth=size_line, alpha=0.7)
+
+    # Customize the appearance of the bars
+    for bar in bars:
+        bar.set_edgecolor(color)
+
+    # Delete vertical grid lines
+    plt.gca().xaxis.grid(False)
 
     return df_resampled
 
 # Set seaborn style
-sns.set_style("whitegrid")
-
-# Set a larger figure size
-plt.figure(figsize=(16, 10))
-
-# Usernames and their respective timeframes
-user_timeframes = {'javiermilei': ('2023-12-10', '2028'), 'alferdezok': ('2019-12-10', '2023-12-10')}
-general_timeframe = (general_start_date, general_end_date)
-
 # Create an empty DataFrame to store the mixed data
 mixed_df = pd.DataFrame()
 
 # Plot for each user and update the mixed DataFrame
 for username, color in zip(usernames, sns.color_palette("tab10", n_colors=len(usernames))):
-    user_data = plot_comments_likes_ratio(username, color, resample_var, timeframe=user_timeframes,
-                                           activate_filter_date=activate_filter_date,
-                                           general_timeframe=general_timeframe,
-                                           activate_href_filter=activate_href_filter)
+    user_data = plot_comments_likes_ratio(username, color, resample_var, USER_TIMEFRAMES,
+                                          activate_filter_date,
+                                          general_timeframe,
+                                          activate_href_filter)
     mixed_df = pd.concat([mixed_df, user_data], axis=1)
 
 # Customize x-axis ticks with month names
@@ -112,18 +125,13 @@ plt.xticks(rotation=90)
 # Calculate the average line
 mixed_df['Average'] = mixed_df.filter(like='ratio2').mean(axis=1)
 
-# Save the plot as bytes
-img_bytes = BytesIO()
-plt.savefig(img_bytes, format='png')
-img_bytes.seek(0)
+# Convert the plot to an HTML string using mpld3
+html_plot = mpld3.fig_to_html(plt.gcf(), template_type='simple')
 
-# Convert the bytes to base64 for embedding in HTML
-img_base64 = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
-
-# Render the HTML template with the embedded chart
+# Render the HTML template with the embedded plot
 @app.route('/')
 def index():
-    return render_template('index.html', img_base64=img_base64)
+    return render_template('index.html', html_plot=html_plot)
 
 if __name__ == '__main__':
     app.run(debug=True)
