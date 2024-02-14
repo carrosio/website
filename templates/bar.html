@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Example</title>
+    <!-- Include Tailwind CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <!-- Include Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-900  text-white">
+    <div class="w-3/4 text-center mx-auto">
+        <h1 class=" text-3xl p-4">Imagen Instagram</h1>
+        <p class="text-xl">Javier Milei</p>
+        <p class="text-xl">Grafico Lineal Average 50ma</p>
+        <a href="/" class="bg-green-500 hover:bg-green-700 text-white font-bold py-4 px-6 md:py-6 md:px-10 rounded inline-block transform transition-transform hover:scale-105">
+            BACK TO MENU
+        </a>
+        
+
+        <canvas id="chart_bar"></canvas>
+    </div>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('chart_bar').getContext('2d');
+
+            // Assuming you have labels and values as variables
+            var labels = {{ labels_json | safe }};
+            var values = {{ values_json | safe }};
+
+            // Format the datetime labels using Moment.js
+            var formattedLabels = labels.map(function (dateString) {
+                return moment(dateString).format('MM-YY');
+            });
+
+            // Customize backgroundColor based on positive/negative values
+            var backgroundColors = values.map(function (value) {
+                return value < 0 ? '#FF5733' : '#36A2EB';
+            });
+
+            var chart_bar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: formattedLabels,
+                    datasets: [{
+                        label: false,
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors,
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 0
+                                }
+                            }
+                        }
+                    }, 
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: formattedLabels,
+                            ticks: {
+                                font: {
+                                    size: 20,
+                                    color: '#36A2EB'
+                                }
+                            },
+                            title: {
+                                display: false,
+                                text: 'Week-Year',
+                                size: 20
+                            },
+                            font: {
+                                size: 20
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 20
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

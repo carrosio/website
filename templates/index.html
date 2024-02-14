@@ -4,24 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matplotlib Plot</title>
+    <title>Chart.js Example</title>
     <!-- Include Tailwind CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <!-- Include mpld3 library -->
-    <script src="https://mpld3.github.io/js/mpld3.v0.5.5.js"></script>
+    <!-- Include Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="bg-gray-100 max-w-full min-h-screen flex items-center justify-center">
-    <!-- Display the Matplotlib plot as an interactive HTML -->
-    <div class="max-w-full bg-gray-100  overflow-hidden">
-        <div class="text-center pt-4 p-2">
-            <h1 class="text-3xl font-bold p-2 text-gray-900">Imagen Negativa Javier Milei</h1>
-            <p class="text-1xl text-gray-700 ">Promedio Ratio (Comments / Likes) Post Instagram</p>
-            <p class="text-1xl text-gray-700 ">MES</p>
-
+<body class="bg-gray-900  text-white">
+    <div class="w-3/4 text-center mx-auto">
+        <h1 class=" text-3xl p-4">Imagen Instagram</h1>
+        <p class="text-xl">Javier Milei</p>
+        <div>
+            <a href="/bar" class="bg-green-500 hover:bg-green-700 text-white font-bold py-4 px-6 md:py-6 md:px-10 rounded inline-block transform transition-transform hover:scale-105">
+                GRAFICO BAR
+            </a>
+    
+            <a href="/line" class="bg-green-500 hover:bg-green-700 text-white font-bold py-4 px-6 md:py-6 md:px-10 rounded inline-block transform transition-transform hover:scale-105">
+                GRAFICO LINEA
+            </a>
         </div>
-        {{ html_plot|safe }}
+
     </div>
+    <script></script>
 </body>
 
 </html>
